@@ -18,8 +18,16 @@ with open("config.yaml") as f:
 if not os.path.exists(config['server']['storageFolder']):
     os.makedirs(config['server']['storageFolder'])
 
+@app.route("/")
+def index():
+    return render_template("index.html")
+
 @app.route("/api/cedar/template.json")
 def template():
+    """
+    Retrieve cedar template from the main repository,
+    and pass it to the embeddable editor in the front-end
+    """
     headers = {
         "Authorization": f"apiKey {config['cedar']['apiKey']}",
         "Content-Type": "application/json"
@@ -30,7 +38,9 @@ def template():
 
 @app.route("/api/cedar/store", methods=["POST", "PUT"])
 def store():
-    
+    """
+    Function to store the actual data generated using the cedar embeddable editor.
+    """
     session_id = uuid.uuid4()
     if request.method == "PUT":
         session_id = request.args.get("id")
