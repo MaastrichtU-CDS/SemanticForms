@@ -1,0 +1,6 @@
+Flask
+flask-cors
+requests
+pyyaml
+rdflib
+SPARQLWrapper
