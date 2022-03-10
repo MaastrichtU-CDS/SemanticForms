@@ -1,3 +1,4 @@
+from operator import truediv
 from flask import Flask, Response, request, render_template
 from flask_cors import CORS
 import yaml
@@ -6,13 +7,28 @@ import requests
 import uuid
 import json
 from rdflib import Graph
+import logging
+import sys
 
 app = Flask(__name__)
 CORS(app)
 
-config = { }
-with open("config.yaml") as f:
-    config = yaml.safe_load(f)
+def loadConfig(pathString):
+    """
+    Load configuration file if found on path
+    """
+    if os.path.exists(pathString):
+        with open(pathString) as f:
+            config = yaml.safe_load(f)
+            return config
+    return { }
+
+config = loadConfig("config.yaml")
+if len(config)==0:
+    config = loadConfig("../config.yaml")
+if len(config)==0:
+    logging.error("Could not find config.yaml file. System will exit")
+    sys.exit(-1)
 
 # Create storage folder
 if not os.path.exists(config['server']['storageFolder']):
