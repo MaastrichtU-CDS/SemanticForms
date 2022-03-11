@@ -9,9 +9,16 @@ import json
 from rdflib import Graph
 import logging
 import sys
+import datetime
+from tzlocal import get_localzone
+from endpoint_service import SPARQLEndpoint
 
 app = Flask(__name__)
 CORS(app)
+
+logging.basicConfig(level=logging.DEBUG)
+# get local timezone    
+local_tz = get_localzone() 
 
 def loadConfig(pathString):
     """
@@ -33,6 +40,8 @@ if len(config)==0:
 # Create storage folder
 if not os.path.exists(config['server']['storageFolder']):
     os.makedirs(config['server']['storageFolder'])
+
+sparqlEndpoint = SPARQLEndpoint(config["server"]["rdf_endpoint"], sparqlUpdateUrl=config["server"]["rdf_endpoint_update"])
 
 @app.route("/")
 def index():
@@ -101,6 +110,7 @@ def store():
     data_to_store = request.get_json()
     data_to_store = data_to_store["metadata"]
     data_to_store["schema:isBasedOn"] = template['@id']
+    data_to_store["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
     data_to_store["@id"] = f"http://localhost/template-instances/{session_id}"
 
     with open(fileNameJson, "w") as f:
@@ -109,6 +119,9 @@ def store():
     g = Graph()
     g.parse(data=json.dumps(data_to_store), format='json-ld')
     g.serialize(destination=fileNameTurtle)
+    
+    turtleData = g.serialize(format='nt')
+    sparqlEndpoint.store_instance(turtleData, data_to_store["@id"])
 
     return {"id": f"{session_id}", "message": "Hi there!"}
 
