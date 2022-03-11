@@ -38,6 +38,10 @@ if not os.path.exists(config['server']['storageFolder']):
 def index():
     return render_template("index.html")
 
+@app.route("/add")
+def cee():
+    return render_template("cee.html")
+
 @app.route("/api/cedar/template.json")
 def template():
     """

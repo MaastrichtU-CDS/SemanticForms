@@ -1,2 +1,6 @@
 data/
 env/
+cee/cedar-embeddable-editor*
+cee/release*.zip
+src/static/cee
+src/templates/cee.html
