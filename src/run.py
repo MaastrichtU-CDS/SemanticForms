@@ -48,19 +48,49 @@ def template():
     Retrieve cedar template from the main repository,
     and pass it to the embeddable editor in the front-end
     """
-    headers = {
-        "Authorization": f"apiKey {config['cedar']['apiKey']}",
-        "Content-Type": "application/json"
-    }
+    template = get_template()
+    return Response(json.dumps(template), mimetype='application/json')
 
-    response = requests.get(f"https://repo.metadatacenter.org/templates/{config['cedar']['templateId']}", headers=headers)
-    return Response(response.text, mimetype='application/json')
+def get_template():
+    """
+    Get template from cedar itself, or from a local json-ld file
+    In config.yaml file for local file:
+    ```
+    template:
+        source: file
+        location: template.json
+    ```
+
+    In config.yaml for cedar:
+    ```
+    template:
+        source: cedar
+        api_key: <your_api_key>
+        templateId: <your_template_uuid>
+    ```
+    """
+    if config['template']['source'] == 'cedar':
+        headers = {
+            "Authorization": f"apiKey {config['template']['apiKey']}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.get(f"https://repo.metadatacenter.org/templates/{config['template']['templateId']}", headers=headers)
+        return json.loads(response.text)
+    
+    if config['template']['source'] == 'file':
+        template = { }
+        if os.path.exists(config['template']['location']):
+            with open(config['template']['location']) as f:
+                template = json.load(f)
+        return template
 
 @app.route("/api/cedar/store", methods=["POST", "PUT"])
 def store():
     """
     Function to store the actual data generated using the cedar embeddable editor.
     """
+    template = get_template()
     session_id = uuid.uuid4()
     if request.method == "PUT":
         session_id = request.args.get("id")
@@ -70,7 +100,7 @@ def store():
 
     data_to_store = request.get_json()
     data_to_store = data_to_store["metadata"]
-    data_to_store["schema:isBasedOn"] = f"https://repo.metadatacenter.org/templates/{config['cedar']['templateId']}"
+    data_to_store["schema:isBasedOn"] = template['@id']
     data_to_store["@id"] = f"http://localhost/template-instances/{session_id}"
 
     with open(fileNameJson, "w") as f:
@@ -80,7 +110,7 @@ def store():
     g.parse(data=json.dumps(data_to_store), format='json-ld')
     g.serialize(destination=fileNameTurtle)
 
-    return {"id": f"{session_id}"}
+    return {"id": f"{session_id}", "message": "Hi there!"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
