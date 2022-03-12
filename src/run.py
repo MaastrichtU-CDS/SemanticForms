@@ -45,7 +45,8 @@ sparqlEndpoint = SPARQLEndpoint(config["server"]["rdf_endpoint"], sparqlUpdateUr
 
 @app.route("/")
 def index():
-    return render_template("index.html")
+    instances = sparqlEndpoint.list_instances()
+    return render_template("index.html", instances=instances)
 
 @app.route("/add")
 def cee():

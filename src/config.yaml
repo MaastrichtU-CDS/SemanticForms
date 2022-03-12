@@ -1,2 +1,7 @@
 server:
   storageFolder: ./data
+  rdf_endpoint: https://graphdb.jvsoest.eu/repositories/public_dump
+  rdf_endpoint_update: https://graphdb.jvsoest.eu/repositories/public_dump/statements
+template:
+  source: file
+  location: template.json

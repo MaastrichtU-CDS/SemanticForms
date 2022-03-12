@@ -1,4 +1,4 @@
-from SPARQLWrapper import SPARQLWrapper, POST, DIGEST
+from SPARQLWrapper import SPARQLWrapper, POST, DIGEST, JSON
 import logging
 
 class SPARQLEndpoint:
@@ -13,6 +13,26 @@ class SPARQLEndpoint:
         if sparqlUpdateUrl is not None:
             self.__sparql_update_url = sparqlUpdateUrl
     
+    def list_instances(self):
+        """
+        Retrieve all instances stored in the SPARQL endpoint
+        """
+        
+        query = """
+        prefix pav: <http://purl.org/pav/>
+
+        select distinct ?instance ?time
+        where { 
+            ?instance pav:createdOn ?time.
+        }
+        """
+
+        sparql = SPARQLWrapper(self.__sparql_url)
+        sparql.setQuery(query)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        return results["results"]["bindings"]
+
     def store_instance(self, rdf_string, graph_uri=None):
         """
         Store data to a SPARQL endpoint.
