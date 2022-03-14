@@ -32,6 +32,50 @@ class SPARQLEndpoint:
         sparql.setReturnFormat(JSON)
         results = sparql.query().convert()
         return results["results"]["bindings"]
+    
+    def describe_instance(self, instance_uri):
+        """
+        Retrieve the direct properties of the given instance
+        """
+        sparql = SPARQLWrapper(self.__sparql_url)
+        sparql.setQuery("""
+        SELECT ?predicate ?object
+        WHERE {
+            <%s> ?predicate ?object.
+        }
+        """ % instance_uri)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        return results["results"]["bindings"]
+    
+    def get_instance_links(self, instance_uri):
+        """
+        Retrieve the references of this instance
+        """
+        sparql = SPARQLWrapper(self.__sparql_url)
+        sparql.setQuery("""
+        SELECT ?predicate ?object
+        WHERE {
+            ?subject ?predicate <%s>.
+        }
+        """ % instance_uri)
+        sparql.setReturnFormat(JSON)
+        results = sparql.query().convert()
+        return results["results"]["bindings"]
+
+    def drop_instance(self, identifier):
+        """
+        Delete the form instance
+        """
+        query = "DROP GRAPH <%s>" % identifier
+        sparql = SPARQLWrapper(self.__sparql_update_url)
+        sparql.setMethod(POST)
+        sparql.setQuery(query)
+
+        logging.debug(query)
+
+        results = sparql.query()
+        logging.debug(results.response.read())
 
     def store_instance(self, rdf_string, graph_uri=None):
         """

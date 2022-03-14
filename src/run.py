@@ -1,5 +1,5 @@
 from operator import truediv
-from flask import Flask, Response, request, render_template
+from flask import Flask, Response, request, render_template, redirect
 from flask_cors import CORS
 import yaml
 import os
@@ -53,6 +53,19 @@ def index():
 @app.route("/add")
 def cee():
     return render_template("cee.html")
+
+@app.route("/delete")
+def delete_instance():
+    identifier = request.args.get("uri")
+    sparqlEndpoint.drop_instance(identifier)
+    return redirect("/")
+
+@app.route("/instance")
+def showInstance():
+    identifier = request.args.get("uri")
+    properties = sparqlEndpoint.describe_instance(identifier)
+    references = sparqlEndpoint.get_instance_links(identifier)
+    return render_template("instance.html", properties=properties, references=references, instance_uri=identifier)
 
 @app.route("/api/cedar/template.json")
 def template():

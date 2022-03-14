@@ -1,0 +1,21 @@
+{% extends "layout.html" %}
+{% block content %}
+<h1>Instance details</h1>
+<div class="container-fluid"><a href="./delete?uri={{ instance_uri }}" role="button" class="btn btn-danger float-right mb-1">Delete</a></div>
+<table class="table table-sm table-striped mt-2">
+    <thead>
+        <tr>
+            <th scope="col">Property</th>
+            <th scope="col">Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        {%for property in properties %}
+        <tr>
+            <td>{{ property["predicate"]["value"] }}</td>
+            <td>{{ property["object"]["value"] }}</td>
+        </tr>
+        {%endfor%}
+    </tbody>
+</table>
+{% endblock %}
