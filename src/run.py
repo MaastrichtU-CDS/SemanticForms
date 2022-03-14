@@ -46,6 +46,8 @@ sparqlEndpoint = SPARQLEndpoint(config["server"]["rdf_endpoint"], sparqlUpdateUr
 @app.route("/")
 def index():
     instances = sparqlEndpoint.list_instances()
+    for idx, val in enumerate(instances):
+        instances[idx]["instance"]["short"] = instances[idx]["instance"]["value"].replace(config["template"]["instance_base_url"] + "/", "")
     return render_template("index.html", instances=instances)
 
 @app.route("/add")
@@ -112,7 +114,7 @@ def store():
     data_to_store = data_to_store["metadata"]
     data_to_store["schema:isBasedOn"] = template['@id']
     data_to_store["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
-    data_to_store["@id"] = f"http://localhost/template-instances/{session_id}"
+    data_to_store["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
 
     with open(fileNameJson, "w") as f:
         json.dump(data_to_store, f, indent=4)

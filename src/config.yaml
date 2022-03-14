@@ -5,3 +5,4 @@ server:
 template:
   source: file
   location: template.json
+  instance_base_url: http://localhost/template-instances

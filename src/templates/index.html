@@ -7,15 +7,13 @@
     <thead>
         <tr>
             <th scope="col">ID</th>
-            <th scope="col">Name</th>
             <th scope="col">Creation Date</th>
         </tr>
     </thead>
     <tbody>
         {%for instance in instances %}
         <tr>
-            <td>{{instance["instance"]["value"]}}</td>
-            <td></td>
+            <td>{{instance["instance"]["short"]}}</td>
             <td>{{instance["time"]["value"]}}</td>
         </tr>
         {%endfor%}
