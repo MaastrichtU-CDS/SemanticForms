@@ -1,6 +1,6 @@
 version='2.6.18'
 
-cd cee/
+cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 rm -Rf cedar-embeddable-editor*
 rm -Rf release-*.zip
