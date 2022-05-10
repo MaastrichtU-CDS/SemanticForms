@@ -16,7 +16,7 @@ cp app.module.ts cedar-embeddable-editor-release-$version/src/app/app.module.ts
 # Build project
 cd cedar-embeddable-editor-release-$version
 npm install
-node_modules/@angular/cli/bin/ng build --configuration production --baseHref="/static/cee/"
+node_modules/@angular/cli/bin/ng build --configuration production --baseHref="./static/cee/"
 
 # Copy to src static
 rm -R ../../src/static/cee
