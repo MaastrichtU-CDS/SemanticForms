@@ -1,5 +1,7 @@
 version='2.6.18'
 
+cd cee/
+
 rm -Rf cedar-embeddable-editor*
 rm -Rf release-*.zip
 
