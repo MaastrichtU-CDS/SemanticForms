@@ -5,3 +5,4 @@ cee/release*.zip
 src/static/cee
 src/templates/cee.html
 *.pyc
+venv/
