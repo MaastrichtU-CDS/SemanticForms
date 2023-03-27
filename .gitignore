@@ -6,3 +6,5 @@ src/static/cee
 src/templates/cee.html
 *.pyc
 venv/
+**node_modules
+package*.json
