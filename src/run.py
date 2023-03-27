@@ -52,7 +52,13 @@ def index():
 
 @app.route("/add")
 def cee():
-    return render_template("cee.html")
+    identifier = request.args.get("uri").replace(config['template']['instance_base_url'], ".")
+    jsonData = None
+    
+    fileNameJson = os.path.join(config['server']['storageFolder'], f"{identifier}.jsonld")
+    with open(fileNameJson, "r") as f:
+        jsonData = json.load(f)
+    return render_template("cee.html", formData=json.dumps(jsonData))
 
 @app.route("/delete")
 def delete_instance():
