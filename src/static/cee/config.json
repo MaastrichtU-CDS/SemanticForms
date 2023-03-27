@@ -1,0 +1,33 @@
+{
+    "showTemplateUpload": false,
+    "templateUploadBaseUrl": "https://api-php.cee.metadatacenter.orgx",
+    "templateUploadEndpoint": "/upload.php",
+    "templateDownloadEndpoint": "/download.php",
+    "templateUploadParamName": "3520cf061bba4919a8ea4b74a07af01b",
+    "templateDownloadParamName": "9ff482bacac84c499655ab58efdf590a",
+  
+    "showDataSaver": true,
+    "dataSaverEndpointUrl": "http://localhost:5000/api/cedar/store",
+  
+    "showSampleTemplateLinks": false,
+    "expandedSampleTemplateLinks": false,
+    "sampleTemplateLocationPrefix": "http://localhost:5000/api",
+    "loadSampleTemplateName": "cedar",
+  
+    "showFooter": false,
+    "showHeader": false,
+  
+    "terminologyProxyUrl": "https://terminology.metadatacenter.org/bioportal/integrated-search",
+  
+    "showTemplateRenderingRepresentation": false,
+    "showMultiInstanceInfo": false,
+    "showTemplateSourceData": false,
+    "showInstanceDataCore": false,
+    "showInstanceDataFull": true,
+  
+    "expandedInstanceDataCore": false,
+    "expandedInstanceDataFull": false,
+    "expandedTemplateSourceData": false,
+    "expandedTemplateRenderingRepresentation": false,
+    "expandedMultiInstanceInfo": false
+  }

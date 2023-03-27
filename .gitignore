@@ -1,8 +1,8 @@
-data/
 env/
-cee/cedar-embeddable-editor*
+**/cee/cedar-embeddable-editor*
+cee/output
+data/
 cee/release*.zip
-src/static/cee
 src/templates/cee.html
 *.pyc
 venv/
