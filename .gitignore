@@ -8,3 +8,6 @@ src/templates/cee.html
 venv/
 **node_modules
 package*.json
+MaterialIcons*
+**/cee/styles.css
+.DS_Store
