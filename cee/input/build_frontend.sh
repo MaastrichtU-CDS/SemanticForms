@@ -1,4 +1,4 @@
-version='2.6.18'
+version='2.6.24'
 
 mkdir /build
 cd /build
@@ -19,9 +19,10 @@ unzip release-$version.zip
 # Build project
 cd cedar-embeddable-editor-release-$version
 sed -i "/this.messageHandlerService.traceObject/ a window.location.href = '\\/';" src/app/modules/shared/components/cedar-data-saver/cedar-data-saver.component.ts
-npm install
+npm install --no-audit
 # node_modules/@angular/cli/bin/ng build --configuration production --baseHref="./static/cee/"
-node_modules/@angular/cli/bin/ng build --configuration production --output-hashing=none --baseHref="./static/cee/"
+export PATH=$(pwd)/node_modules/@angular/cli/bin/:$PATH
+ng build --configuration production --output-hashing=none --baseHref="./static/cee/"
 
 # copy output
 cp -R ./dist/cedar-embeddable-editor/* /output

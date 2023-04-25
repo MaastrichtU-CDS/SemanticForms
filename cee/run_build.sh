@@ -1,7 +1,10 @@
-NODE_VERSION=14
+NODE_VERSION=16
+
+docker volume create node-$NODE_VERSION-cedar-build
+
 rm -Rf $(pwd)/output
 
-docker run --rm -it -v $(pwd)/input:/input -v $(pwd)/output:/output node:$NODE_VERSION-bullseye /bin/bash /input/build_frontend.sh
+docker run --rm -it -v $(pwd)/input:/input -v $(pwd)/output:/output -v node-$NODE_VERSION-cedar-build:/build node:$NODE_VERSION-bullseye /bin/bash /input/build_frontend.sh
 
 cat output/{runtime,polyfills,main}.js > "../src/static/cee/cedar-embeddable-editor.js"
 
