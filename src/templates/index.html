@@ -15,6 +15,7 @@
         <tr>
             <td><a href="./instance?uri={{instance['instance']['value']}}">{{instance["instance"]["short"]}}</a></td>
             <td>{{instance["time"]["value"]}}</td>
+            <td><a href="./edit?uri={{instance['instance']['value']}}" role="button" class="btn btn-secondary float-right">Edit</a></td>
         </tr>
         {%endfor%}
     </tbody>

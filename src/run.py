@@ -52,13 +52,22 @@ def index():
 
 @app.route("/add")
 def cee():
-    identifier = request.args.get("uri").replace(config['template']['instance_base_url'], ".")
+    return render_template("cee.html")
+
+@app.route("/edit")
+def edit_cee():
+    identifier = None
+    if "uri" in request.args:
+        identifier = request.args.get("uri").replace(config['template']['instance_base_url'], ".")
     jsonData = None
     
-    fileNameJson = os.path.join(config['server']['storageFolder'], f"{identifier}.jsonld")
-    with open(fileNameJson, "r") as f:
-        jsonData = json.load(f)
-    return render_template("cee.html", formData=json.dumps(jsonData))
+    if identifier:
+        fileNameJson = os.path.join(config['server']['storageFolder'], f"{identifier}.jsonld")
+        with open(fileNameJson, "r") as f:
+            jsonData = json.load(f)
+        return render_template("cee.html", formData=json.dumps(jsonData))
+    
+    return redirect("/", error="Could not load data")  
 
 @app.route("/delete")
 def delete_instance():
@@ -130,20 +139,21 @@ def store():
     fileNameTurtle = os.path.join(config['server']['storageFolder'], f"{session_id}.ttl")
 
     data_to_store = request.get_json()
-    data_to_store = data_to_store["metadata"]
-    data_to_store["schema:isBasedOn"] = template['@id']
-    data_to_store["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
-    data_to_store["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
+    data_to_store_meta = data_to_store["metadata"]
+    data_to_store_meta["schema:isBasedOn"] = template['@id']
+    data_to_store_meta["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
+    data_to_store_meta["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
+    data_to_store["metadata"] = data_to_store_meta
 
     with open(fileNameJson, "w") as f:
         json.dump(data_to_store, f, indent=4)
     
     g = Graph()
-    g.parse(data=json.dumps(data_to_store), format='json-ld')
+    g.parse(data=json.dumps(data_to_store_meta), format='json-ld')
     g.serialize(destination=fileNameTurtle)
     
     turtleData = g.serialize(format='nt')
-    sparqlEndpoint.store_instance(turtleData, data_to_store["@id"])
+    sparqlEndpoint.store_instance(turtleData, data_to_store_meta["@id"])
 
     return {"id": f"{session_id}", "message": "Hi there!"}
 
