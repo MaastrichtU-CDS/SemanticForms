@@ -65,6 +65,10 @@ def edit_cee():
         fileNameJson = os.path.join(config['server']['storageFolder'], f"{identifier}.jsonld")
         with open(fileNameJson, "r") as f:
             jsonData = json.load(f)
+            jsonData = jsonData["metadata"]
+            del jsonData["schema:isBasedOn"]
+            del jsonData["pav:createdOn"]
+            del jsonData["@id"]
         return render_template("cee.html", formData=json.dumps(jsonData))
     
     return redirect("/", error="Could not load data")  
@@ -139,14 +143,14 @@ def store():
     fileNameTurtle = os.path.join(config['server']['storageFolder'], f"{session_id}.ttl")
 
     data_to_store = request.get_json()
+    with open(fileNameJson, "w") as f:
+        json.dump(data_to_store, f, indent=4)
+    
     data_to_store_meta = data_to_store["metadata"]
     data_to_store_meta["schema:isBasedOn"] = template['@id']
     data_to_store_meta["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
     data_to_store_meta["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
     data_to_store["metadata"] = data_to_store_meta
-
-    with open(fileNameJson, "w") as f:
-        json.dump(data_to_store, f, indent=4)
     
     g = Graph()
     g.parse(data=json.dumps(data_to_store_meta), format='json-ld')

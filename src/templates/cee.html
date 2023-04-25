@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Cedar form editor</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" rel="stylesheet">
+
+  <!-- This div is needed when targeting ES5. It will add the adapter to browsers that support customElements, which require ES6 classes -->
+  <div id="ce-es5-shim">
+    <script type="text/javascript">
+      if (!window.customElements) {
+        const ceShimContainer = document.querySelector('#ce-es5-shim');
+        ceShimContainer.parentElement.removeChild(ceShimContainer);
+      }
+    </script>
+    <script type="text/javascript" src="static/cee/node_modules/@webcomponents/webcomponentsjs/custom-elements-es5-adapter.js"></script>
+  </div>
+
+  <!-- load the webcomponents loader, which injects the necessary polyfill bundle -->
+  <script type="text/javascript" src="static/cee/node_modules/@webcomponents/webcomponentsjs/webcomponents-loader.js"></script>
+
+  <!-- load the component -->
+  <script type="text/javascript" src="static/cee/cedar-embeddable-editor.js"></script>
+  <link rel="stylesheet" type="text/css" href="static/cee/styles.css">
+
+  <script type="text/javascript">
+
+    function loadMetadata() {
+      const cee = document.querySelector('cedar-embeddable-editor');
+
+      console.log("loading json metadata")
+      if (cee.currentMetadata.hasOwnProperty("@context")) {
+        {% if formData %}
+          const jsonMeta = JSON.parse('{{ formData | safe }}');
+          cee.metadata = jsonMeta;
+        {% endif %}
+      } else {
+        setTimeout(loadMetadata, 10)
+      }
+    }
+
+    document.addEventListener('WebComponentsReady', function () {
+      const cee = document.querySelector('cedar-embeddable-editor');
+      cee.loadConfigFromURL('static/cee/config.json');
+
+      loadMetadata()
+    });
+  </script>
+</head>
+<body>
+  <cedar-embeddable-editor></cedar-embeddable-editor>
+</body>
+
+</html>

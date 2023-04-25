@@ -3,7 +3,6 @@ env/
 cee/output
 data/
 cee/release*.zip
-src/templates/cee.html
 *.pyc
 venv/
 **node_modules
