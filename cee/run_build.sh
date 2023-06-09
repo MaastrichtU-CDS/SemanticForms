@@ -11,4 +11,5 @@ cat $(pwd)/output/cedar-embeddable-editor.js > $(pwd)/../src/static/cee/cedar-em
 docker run --rm -v $(pwd)/output:/output --workdir /output node:$NODE_VERSION-bullseye npm install @webcomponents/webcomponentsjs
 
 cp -R $(pwd)/output/node_modules ../src/static/cee/node_modules
-cp $(pwd)/output/{MaterialIcons-*,styles.css} $(pwd)/../src/static/cee/
+cp $(pwd)/output/styles.css $(pwd)/../src/static/cee/
+cp $(pwd)/output/MaterialIcons-* $(pwd)/../src/static/cee/
