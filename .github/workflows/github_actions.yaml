@@ -29,8 +29,6 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      ## Check this thread to solve this issue
-      ## https://stackoverflow.com/questions/57549439/how-do-i-use-docker-with-github-actions
       - name: Build frontend
         id: build_frontend
         run: |

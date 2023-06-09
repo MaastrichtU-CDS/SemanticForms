@@ -26,3 +26,5 @@ npm run ng build -- --configuration production --output-hashing=none --base-href
 
 # copy output
 cp -R ./dist/cedar-embeddable-editor/* /output
+
+cat /output/{runtime,polyfills,main}.js > /output/cedar-embeddable-editor.js
