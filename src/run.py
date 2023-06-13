@@ -41,7 +41,7 @@ if len(config)==0:
 if not os.path.exists(config['server']['storageFolder']):
     os.makedirs(config['server']['storageFolder'])
 
-sparqlEndpoint = SPARQLEndpoint(config["server"]["rdf_endpoint"], sparqlUpdateUrl=config["server"]["rdf_endpoint_update"])
+sparqlEndpoint = SPARQLEndpoint(config["server"]["server_url"], config["server"]["repository_name"], update_endpoint_suffix=config["server"]["update_endpoint_suffix"])
 
 @app.route("/")
 def index():

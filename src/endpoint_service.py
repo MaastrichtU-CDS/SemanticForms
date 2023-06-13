@@ -1,18 +1,80 @@
 from SPARQLWrapper import SPARQLWrapper, POST, DIGEST, JSON
+import requests
 import logging
+import sys
 
 class SPARQLEndpoint:
-    def __init__(self, sparql_url, sparqlUpdateUrl=None):
+    def __init__(self, server_url, repository_name, update_endpoint_suffix=None):
         """
         The SPARQLEndpoint class manages communication to the SPARQL endpoint.
         sparql_url: the SPARQL endpoint URL
         sparqlUpdateUrl: optional, if the endpoint uses a separate update url, provide this URL here
         """
-        self.__sparql_url = sparql_url
-        self.__sparql_update_url = sparql_url
-        if sparqlUpdateUrl is not None:
-            self.__sparql_update_url = sparqlUpdateUrl
-    
+        self.__sparql_url = server_url + "/repositories/" + repository_name
+        self.__sparql_update_url = server_url
+        if update_endpoint_suffix is not None:
+            self.__sparql_update_url = self.__sparql_update_url + update_endpoint_suffix
+        
+        repo_exists = self.__create_repo_if_not_exists(server_url, repository_name)
+        if not repo_exists:
+            print(f"Cannot create or find RDF endpoint {self.__sparql_url}")
+            sys.exit(9)
+
+    def __create_repo_if_not_exists(self, server_url, repository_name):
+        url = server_url + "/repositories"
+        response = requests.get(url, headers={"Accept": "application/sparql-results+json"})
+
+        repositories = response.json()["results"]["bindings"]
+        repoFound = False
+        for repository in repositories:
+            if repository["id"]["value"] == repository_name:
+                repoFound = True
+        
+        if not repoFound:
+            print("repository not found, attempting to create")
+            url = server_url + "/rest/repositories"
+            repoConfig = f"""
+                @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+                @prefix rep: <http://www.openrdf.org/config/repository#> .
+                @prefix sail: <http://www.openrdf.org/config/sail#> .
+                @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+                <#{repository_name}> a rep:Repository;
+                rep:repositoryID "{repository_name}";
+                rep:repositoryImpl [
+                    rep:repositoryType "graphdb:FreeSailRepository";
+                    <http://www.openrdf.org/config/repository/sail#sailImpl> [
+                        <http://www.ontotext.com/trree/owlim#base-URL> "http://example.org/owlim#";
+                        <http://www.ontotext.com/trree/owlim#check-for-inconsistencies> "false";
+                        <http://www.ontotext.com/trree/owlim#defaultNS> "";
+                        <http://www.ontotext.com/trree/owlim#disable-sameAs> "true";
+                        <http://www.ontotext.com/trree/owlim#enable-context-index> "false";
+                        <http://www.ontotext.com/trree/owlim#enable-literal-index> "true";
+                        <http://www.ontotext.com/trree/owlim#enablePredicateList> "true";
+                        <http://www.ontotext.com/trree/owlim#entity-id-size> "32";
+                        <http://www.ontotext.com/trree/owlim#entity-index-size> "10000000";
+                        <http://www.ontotext.com/trree/owlim#imports> "";
+                        <http://www.ontotext.com/trree/owlim#in-memory-literal-properties> "true";
+                        <http://www.ontotext.com/trree/owlim#query-limit-results> "0";
+                        <http://www.ontotext.com/trree/owlim#query-timeout> "0";
+                        <http://www.ontotext.com/trree/owlim#read-only> "false";
+                        <http://www.ontotext.com/trree/owlim#repository-type> "file-repository";
+                        <http://www.ontotext.com/trree/owlim#ruleset> "empty";
+                        <http://www.ontotext.com/trree/owlim#storage-folder> "storage";
+                        <http://www.ontotext.com/trree/owlim#throw-QueryEvaluationException-on-timeout> "false";
+                        sail:sailType "graphdb:FreeSail"
+                        ]
+                    ];
+                rdfs:label "{repository_name}" .
+            """
+            data = { "config": repoConfig }
+            # header = { "Content-Type": "multipart/form-data" }
+            response = requests.post(url, files=data)#, headers=header)
+            if response.status_code >= 200 & response.status_code < 300:
+                return True
+        
+        return False
+
     def list_instances(self):
         """
         Retrieve all instances stored in the SPARQL endpoint
