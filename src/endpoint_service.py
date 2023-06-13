@@ -11,7 +11,7 @@ class SPARQLEndpoint:
         sparqlUpdateUrl: optional, if the endpoint uses a separate update url, provide this URL here
         """
         self.__sparql_url = server_url + "/repositories/" + repository_name
-        self.__sparql_update_url = server_url
+        self.__sparql_update_url = self.__sparql_url
         if update_endpoint_suffix is not None:
             self.__sparql_update_url = self.__sparql_update_url + update_endpoint_suffix
         
