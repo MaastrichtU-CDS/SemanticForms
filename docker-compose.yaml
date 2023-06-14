@@ -20,9 +20,6 @@ services:
     volumes:
       - ./data:/app/data
       - ./src/config.yaml:/app/config.yaml
-      # - ./src/run.py:/app/run.py
-      # - ./src/endpoint_service.py:/app/endpoint_service.py
-      # - ./src/templates/cee.html:/app/templates/cee.html
     depends_on:
       rdf-store:
         condition: service_healthy
