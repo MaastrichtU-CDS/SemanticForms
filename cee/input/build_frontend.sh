@@ -1,6 +1,5 @@
 version='2.6.24'
 
-mkdir /build
 cd /build
 
 cp /input/*.ts ./
