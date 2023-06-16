@@ -7,7 +7,8 @@ rm -Rf $(pwd)/output
 docker run --rm -v $(pwd)/input:/input -v $(pwd)/output:/output -v node-$NODE_VERSION-cedar-build:/build node:$NODE_VERSION-bullseye /bin/bash /input/build_frontend.sh
 
 mkdir -p $(pwd)/../src/static/cee/node_modules
-cp $(pwd)/output/cedar-embeddable-editor.js $(pwd)/../src/static/cee/cedar-embeddable-editor.js
+# Add static folder prefix to load font type correctly in javascript
+gsed 's/MaterialIcons/static\/cee\/MaterialIcons/g' output/cedar-embeddable-editor.js > $(pwd)/../src/static/cee/cedar-embeddable-editor.js
 
 docker run --rm -v $(pwd)/output:/output --workdir /output node:$NODE_VERSION-bullseye npm install @webcomponents/webcomponentsjs
 
