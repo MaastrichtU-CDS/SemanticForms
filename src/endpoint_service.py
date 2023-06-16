@@ -25,54 +25,53 @@ class SPARQLEndpoint:
         response = requests.get(url, headers={"Accept": "application/sparql-results+json"})
 
         repositories = response.json()["results"]["bindings"]
-        repoFound = False
         for repository in repositories:
+            print(repository["id"]["value"] + " | " + repository_name)
             if repository["id"]["value"] == repository_name:
-                repoFound = True
-        
-        if not repoFound:
-            print("repository not found, attempting to create")
-            url = server_url + "/rest/repositories"
-            repoConfig = f"""
-                @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
-                @prefix rep: <http://www.openrdf.org/config/repository#> .
-                @prefix sail: <http://www.openrdf.org/config/sail#> .
-                @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
-
-                <#{repository_name}> a rep:Repository;
-                rep:repositoryID "{repository_name}";
-                rep:repositoryImpl [
-                    rep:repositoryType "graphdb:FreeSailRepository";
-                    <http://www.openrdf.org/config/repository/sail#sailImpl> [
-                        <http://www.ontotext.com/trree/owlim#base-URL> "http://example.org/owlim#";
-                        <http://www.ontotext.com/trree/owlim#check-for-inconsistencies> "false";
-                        <http://www.ontotext.com/trree/owlim#defaultNS> "";
-                        <http://www.ontotext.com/trree/owlim#disable-sameAs> "true";
-                        <http://www.ontotext.com/trree/owlim#enable-context-index> "false";
-                        <http://www.ontotext.com/trree/owlim#enable-literal-index> "true";
-                        <http://www.ontotext.com/trree/owlim#enablePredicateList> "true";
-                        <http://www.ontotext.com/trree/owlim#entity-id-size> "32";
-                        <http://www.ontotext.com/trree/owlim#entity-index-size> "10000000";
-                        <http://www.ontotext.com/trree/owlim#imports> "";
-                        <http://www.ontotext.com/trree/owlim#in-memory-literal-properties> "true";
-                        <http://www.ontotext.com/trree/owlim#query-limit-results> "0";
-                        <http://www.ontotext.com/trree/owlim#query-timeout> "0";
-                        <http://www.ontotext.com/trree/owlim#read-only> "false";
-                        <http://www.ontotext.com/trree/owlim#repository-type> "file-repository";
-                        <http://www.ontotext.com/trree/owlim#ruleset> "empty";
-                        <http://www.ontotext.com/trree/owlim#storage-folder> "storage";
-                        <http://www.ontotext.com/trree/owlim#throw-QueryEvaluationException-on-timeout> "false";
-                        sail:sailType "graphdb:FreeSail"
-                        ]
-                    ];
-                rdfs:label "{repository_name}" .
-            """
-            data = { "config": repoConfig }
-            # header = { "Content-Type": "multipart/form-data" }
-            response = requests.post(url, files=data)#, headers=header)
-            if response.status_code >= 200 & response.status_code < 300:
                 return True
         
+        print("repository not found, attempting to create")
+        url = server_url + "/rest/repositories"
+        repoConfig = f"""
+            @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+            @prefix rep: <http://www.openrdf.org/config/repository#> .
+            @prefix sail: <http://www.openrdf.org/config/sail#> .
+            @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+            <#{repository_name}> a rep:Repository;
+            rep:repositoryID "{repository_name}";
+            rep:repositoryImpl [
+                rep:repositoryType "graphdb:FreeSailRepository";
+                <http://www.openrdf.org/config/repository/sail#sailImpl> [
+                    <http://www.ontotext.com/trree/owlim#base-URL> "http://example.org/owlim#";
+                    <http://www.ontotext.com/trree/owlim#check-for-inconsistencies> "false";
+                    <http://www.ontotext.com/trree/owlim#defaultNS> "";
+                    <http://www.ontotext.com/trree/owlim#disable-sameAs> "true";
+                    <http://www.ontotext.com/trree/owlim#enable-context-index> "false";
+                    <http://www.ontotext.com/trree/owlim#enable-literal-index> "true";
+                    <http://www.ontotext.com/trree/owlim#enablePredicateList> "true";
+                    <http://www.ontotext.com/trree/owlim#entity-id-size> "32";
+                    <http://www.ontotext.com/trree/owlim#entity-index-size> "10000000";
+                    <http://www.ontotext.com/trree/owlim#imports> "";
+                    <http://www.ontotext.com/trree/owlim#in-memory-literal-properties> "true";
+                    <http://www.ontotext.com/trree/owlim#query-limit-results> "0";
+                    <http://www.ontotext.com/trree/owlim#query-timeout> "0";
+                    <http://www.ontotext.com/trree/owlim#read-only> "false";
+                    <http://www.ontotext.com/trree/owlim#repository-type> "file-repository";
+                    <http://www.ontotext.com/trree/owlim#ruleset> "empty";
+                    <http://www.ontotext.com/trree/owlim#storage-folder> "storage";
+                    <http://www.ontotext.com/trree/owlim#throw-QueryEvaluationException-on-timeout> "false";
+                    sail:sailType "graphdb:FreeSail"
+                    ]
+                ];
+            rdfs:label "{repository_name}" .
+        """
+        data = { "config": repoConfig }
+        # header = { "Content-Type": "multipart/form-data" }
+        response = requests.post(url, files=data)#, headers=header)
+        if response.status_code >= 200 & response.status_code < 300:
+            return True
+    
         return False
 
     def list_instances(self):
