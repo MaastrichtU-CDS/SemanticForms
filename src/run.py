@@ -162,7 +162,7 @@ def store():
         data_to_store_meta["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
         data_to_store_meta["pav:createdOn"] = data_to_store_info["createdOn"]
         fileNameJson = data_to_store_info["fileName"]
-        fileNameTurtle = fileNameJson.replace(".json", ".ttl")
+        fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
     else:
         print("new profile")
         data_to_store_meta["schema:isBasedOn"] = template['@id']
