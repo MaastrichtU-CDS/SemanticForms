@@ -33,11 +33,6 @@
 
       console.log("loading json metadata")
       if (cee.currentMetadata.hasOwnProperty("@context")) {
-        {% if formInfo %}
-          const formInfo = JSON.parse('{{ formInfo | safe }}');
-          console.log(formInfo)
-          cee.templateInfo = formInfo;
-        {% endif %}
 
         {% if formData %}
           const jsonMeta = JSON.parse('{{ formData | safe }}');
@@ -84,6 +79,11 @@
                     "expandedTemplateRenderingRepresentation": false,
                     "expandedMultiInstanceInfo": false
                   }
+      {% if formInfo %}
+        const formInfo = JSON.parse('{{ formInfo | safe }}');
+        console.log(formInfo)
+        cee.templateInfo = formInfo;
+      {% endif %}
     }
 
     document.addEventListener('WebComponentsReady', function () {

@@ -67,11 +67,11 @@ def edit_cee():
             jsonData = json.load(f)
 
             infoData = {}
-            print(jsonData)
-            print(jsonData["schema:isBasedOn"])
-            infoData["schema:isBasedOn"] = jsonData["schema:isBasedOn"]
-            infoData["@id"] = jsonData["@id"]
-            infoData["pav:createdOn"] = jsonData["pav:createdOn"]
+            
+            infoData["isBasedOn"] = jsonData["schema:isBasedOn"]
+            infoData["id"] = jsonData["@id"]
+            infoData["createdOn"] = jsonData["pav:createdOn"]
+            infoData["fileName"] = fileNameJson
 
             del jsonData["@id"]
             del jsonData["pav:createdOn"]
@@ -156,11 +156,13 @@ def store():
     data_to_store_meta = data_to_store["metadata"]
     data_to_store_info = data_to_store["info"]
 
-    if "@id" in data_to_store_info:
+    if "id" in data_to_store_info:
         print("existing profile")
-        data_to_store_meta["@id"] = data_to_store_info["@id"]
-        data_to_store_meta["schema:isBasedOn"] = data_to_store_info["schema:isBasedOn"]
-        data_to_store_meta["pav:createdOn"] = data_to_store_info["pav:createdOn"]
+        data_to_store_meta["@id"] = data_to_store_info["id"]
+        data_to_store_meta["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
+        data_to_store_meta["pav:createdOn"] = data_to_store_info["createdOn"]
+        fileNameJson = data_to_store_info["fileName"]
+        fileNameTurtle = fileNameJson.replace(".json", ".ttl")
     else:
         print("new profile")
         data_to_store_meta["schema:isBasedOn"] = template['@id']
