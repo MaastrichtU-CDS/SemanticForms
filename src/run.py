@@ -121,12 +121,16 @@ def get_template():
     ```
     """
     if config['template']['source'] == 'cedar':
-        headers = {
-            "Authorization": f"apiKey {config['template']['apiKey']}",
-            "Content-Type": "application/json"
-        }
+        response=None
+        if "api_key" in config['template']:
+            headers = {
+                "Authorization": f"apiKey {config['template']['api_key']}",
+                "Content-Type": "application/json"
+            }
+            response = requests.get(f"https://repo.metadatacenter.org/templates/{config['template']['templateId']}", headers=headers)
+        else:
+            response = requests.get(f"https://open.metadatacenter.org/templates/https:%2F%2Frepo.metadatacenter.org%2Ftemplates%2F{config['template']['templateId']}")
 
-        response = requests.get(f"https://repo.metadatacenter.org/templates/{config['template']['templateId']}", headers=headers)
         return json.loads(response.text)
     
     if config['template']['source'] == 'file':

@@ -4,6 +4,6 @@ server:
   repository_name: "semantic_forms"
   update_endpoint_suffix: "/statements"
 template:
-  source: file
-  location: template.json
+  source: cedar
+  templateId: 102d2c3b-2958-42b1-8baf-8a25ced9aca8
   instance_base_url: http://localhost/template-instances
