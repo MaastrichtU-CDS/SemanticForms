@@ -19,8 +19,8 @@ Additional prerequisites are needed for development:
 By default a CEDAR template is given in [src/template.json](src/template.json). You can change this in the [src/config.yaml](src/config.yaml) file in:
 ```
 template:
-    source: file
-    location: <location_of_cedar_json_ld_file>
+    source: cedar
+    templateId: <location_of_cedar_json_ld_file>
 ```
 
 If you want to connect to the CEDAR service API, it is possible to provide the following information in the [src/config.yaml](src/config.yaml) file:
