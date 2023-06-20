@@ -30,3 +30,5 @@ template:
     api_key: <your_api_key>
     templateId: <your_cedar_template_uuid>
 ```
+
+Mind that the variable `api_key` is only needed for templates which are not available in Cedar's OpenView.
