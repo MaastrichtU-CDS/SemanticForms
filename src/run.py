@@ -41,18 +41,48 @@ if len(config)==0:
 if not os.path.exists(config['server']['storageFolder']):
     os.makedirs(config['server']['storageFolder'])
 
-sparqlEndpoint = SPARQLEndpoint(config["server"]["rdf_endpoint"], sparqlUpdateUrl=config["server"]["rdf_endpoint_update"])
+sparqlEndpoint = SPARQLEndpoint(config["server"]["server_url"], config["server"]["repository_name"], update_endpoint_suffix=config["server"]["update_endpoint_suffix"])
 
 @app.route("/")
 def index():
-    instances = sparqlEndpoint.list_instances()
+    instances = sparqlEndpoint.list_instances(titlePredicate=config["template"]["title_predicate"])
     for idx, val in enumerate(instances):
-        instances[idx]["instance"]["short"] = instances[idx]["instance"]["value"].replace(config["template"]["instance_base_url"] + "/", "")
+        if "title" not in instances[idx]:
+            instances[idx]["title"] = {
+                "value": instances[idx]["instance"]["value"].replace(config["template"]["instance_base_url"] + "/", ""),
+                "type": "literal"
+            }
     return render_template("index.html", instances=instances)
 
 @app.route("/add")
 def cee():
     return render_template("cee.html")
+
+@app.route("/edit")
+def edit_cee():
+    identifier = None
+    if "uri" in request.args:
+        identifier = request.args.get("uri").replace(config['template']['instance_base_url'], ".")
+    jsonData = None
+    
+    if identifier:
+        fileNameJson = os.path.join(config['server']['storageFolder'], f"{identifier}.jsonld")
+        with open(fileNameJson, "r") as f:
+            jsonData = json.load(f)
+
+            infoData = {}
+            
+            infoData["isBasedOn"] = jsonData["schema:isBasedOn"]
+            infoData["id"] = jsonData["@id"]
+            infoData["createdOn"] = jsonData["pav:createdOn"]
+            infoData["fileName"] = fileNameJson
+
+            del jsonData["@id"]
+            del jsonData["pav:createdOn"]
+            del jsonData["schema:isBasedOn"]
+        return render_template("cee.html", formData=json.dumps(jsonData), formInfo=json.dumps(infoData))
+    
+    return redirect("/", error="Could not load data")  
 
 @app.route("/delete")
 def delete_instance():
@@ -95,12 +125,16 @@ def get_template():
     ```
     """
     if config['template']['source'] == 'cedar':
-        headers = {
-            "Authorization": f"apiKey {config['template']['apiKey']}",
-            "Content-Type": "application/json"
-        }
+        response=None
+        if "api_key" in config['template']:
+            headers = {
+                "Authorization": f"apiKey {config['template']['api_key']}",
+                "Content-Type": "application/json"
+            }
+            response = requests.get(f"https://repo.metadatacenter.org/templates/{config['template']['templateId']}", headers=headers)
+        else:
+            response = requests.get(f"https://open.metadatacenter.org/templates/https:%2F%2Frepo.metadatacenter.org%2Ftemplates%2F{config['template']['templateId']}")
 
-        response = requests.get(f"https://repo.metadatacenter.org/templates/{config['template']['templateId']}", headers=headers)
         return json.loads(response.text)
     
     if config['template']['source'] == 'file':
@@ -124,20 +158,35 @@ def store():
     fileNameTurtle = os.path.join(config['server']['storageFolder'], f"{session_id}.ttl")
 
     data_to_store = request.get_json()
-    data_to_store = data_to_store["metadata"]
-    data_to_store["schema:isBasedOn"] = template['@id']
-    data_to_store["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
-    data_to_store["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
 
-    with open(fileNameJson, "w") as f:
-        json.dump(data_to_store, f, indent=4)
+    print(data_to_store)
     
+    data_to_store_meta = data_to_store["metadata"]
+    data_to_store_info = data_to_store["info"]
+
+    if "id" in data_to_store_info:
+        print("existing profile")
+        data_to_store_meta["@id"] = data_to_store_info["id"]
+        data_to_store_meta["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
+        data_to_store_meta["pav:createdOn"] = data_to_store_info["createdOn"]
+        fileNameJson = data_to_store_info["fileName"]
+        fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
+    else:
+        print("new profile")
+        data_to_store_meta["schema:isBasedOn"] = template['@id']
+        data_to_store_meta["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
+        data_to_store_meta["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
+    data_to_store["metadata"] = data_to_store_meta
+    
+    with open(fileNameJson, "w") as f:
+        json.dump(data_to_store_meta, f, indent=4)
+
     g = Graph()
-    g.parse(data=json.dumps(data_to_store), format='json-ld')
+    g.parse(data=json.dumps(data_to_store_meta), format='json-ld')
     g.serialize(destination=fileNameTurtle)
     
     turtleData = g.serialize(format='nt')
-    sparqlEndpoint.store_instance(turtleData, data_to_store["@id"])
+    sparqlEndpoint.store_instance(turtleData, data_to_store_meta["@id"])
 
     return {"id": f"{session_id}", "message": "Hi there!"}
 
