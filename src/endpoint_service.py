@@ -74,20 +74,32 @@ class SPARQLEndpoint:
     
         return False
 
-    def list_instances(self):
+    def list_instances(self, titlePredicate=None):
         """
         Retrieve all instances stored in the SPARQL endpoint
+        Input parameters:
+          - titlePredicate: Full URL path of the predicate URI to use (DataProperty).
         """
         
+        if titlePredicate is None:
+            titlePredicate = "rdfs:label"
+        
+        predicateInsert = "OPTIONAL { ?instance <"+titlePredicate+"> ?title. }"
+
         query = """
         prefix pav: <http://purl.org/pav/>
+        prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
-        select distinct ?instance ?time
+        select distinct ?instance ?time ?title
         where { 
             ?instance pav:createdOn ?time.
+        """
+        query += predicateInsert
+        query += """
         }
         """
 
+        print(query)
         sparql = SPARQLWrapper(self.__sparql_url)
         sparql.setQuery(query)
         sparql.setReturnFormat(JSON)

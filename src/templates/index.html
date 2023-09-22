@@ -6,14 +6,14 @@
 <table class="table table-striped mt-2">
     <thead>
         <tr>
-            <th scope="col">ID</th>
+            <th scope="col">Title / ID</th>
             <th scope="col">Creation Date</th>
         </tr>
     </thead>
     <tbody>
         {%for instance in instances %}
         <tr>
-            <td><a href="./instance?uri={{instance['instance']['value']}}">{{instance["instance"]["short"]}}</a></td>
+            <td><a href="./instance?uri={{instance['instance']['value']}}">{{instance["title"]["value"]}}</a></td>
             <td>{{instance["time"]["value"]}}</td>
             <td><a href="./edit?uri={{instance['instance']['value']}}" role="button" class="btn btn-secondary float-right">Edit</a></td>
         </tr>

@@ -7,3 +7,4 @@ template:
   source: cedar
   templateId: 102d2c3b-2958-42b1-8baf-8a25ced9aca8
   instance_base_url: http://localhost/template-instances
+  title_predicate: http://purl.org/dc/terms/title

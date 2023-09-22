@@ -45,9 +45,13 @@ sparqlEndpoint = SPARQLEndpoint(config["server"]["server_url"], config["server"]
 
 @app.route("/")
 def index():
-    instances = sparqlEndpoint.list_instances()
+    instances = sparqlEndpoint.list_instances(titlePredicate=config["template"]["title_predicate"])
     for idx, val in enumerate(instances):
-        instances[idx]["instance"]["short"] = instances[idx]["instance"]["value"].replace(config["template"]["instance_base_url"] + "/", "")
+        if "title" not in instances[idx]:
+            instances[idx]["title"] = {
+                "value": instances[idx]["instance"]["value"].replace(config["template"]["instance_base_url"] + "/", ""),
+                "type": "literal"
+            }
     return render_template("index.html", instances=instances)
 
 @app.route("/add")
