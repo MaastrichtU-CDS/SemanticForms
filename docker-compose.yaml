@@ -14,7 +14,7 @@ services:
       timeout: 3s
       retries: 5
   semforms:
-    image: ghcr.io/maastrichtu-biss/semanticforms:sprint
+    image: ghcr.io/maastrichtu-biss/semanticforms
     ports:
       - "5000:5000"
     volumes:
