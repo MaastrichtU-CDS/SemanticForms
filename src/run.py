@@ -52,7 +52,12 @@ def index():
                 "value": instances[idx]["instance"]["value"].replace(config["template"]["instance_base_url"] + "/", ""),
                 "type": "literal"
             }
-    return render_template("index.html", instances=instances)
+    
+    
+    if config["template"]["storage"]=="cedar":
+        return render_template("index.html", instances=instances, template_id=config["template"]["templateId"])
+    else:
+        return render_template("index.html", instances=instances)
 
 @app.route("/add")
 def cee():

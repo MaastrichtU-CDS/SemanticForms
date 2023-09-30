@@ -2,7 +2,11 @@
 {% block content %}
 <h1>Filled Templates</h1>
 <p>Please see below for all filled templates, or press the "add" button to fill in the template.</p>
+{% if template_id is defined %}
+<div class="container-fluid"><a href="https://cedar.metadatacenter.org/instances/create/https://repo.metadatacenter.org/templates/{{template_id}}" role="button" class="btn btn-primary float-right mb-1" target="_blank">Add</a></div>
+{% else %}
 <div class="container-fluid"><a href="./add" role="button" class="btn btn-primary float-right mb-1">Add</a></div>
+{% endif %}
 <table class="table table-striped mt-2">
     <thead>
         <tr>
@@ -15,7 +19,11 @@
         <tr>
             <td><a href="./instance?uri={{instance['instance']['value']}}">{{instance["title"]["value"]}}</a></td>
             <td>{{instance["time"]["value"]}}</td>
+            {% if template_id is defined %}
+            <td><a href="https://cedar.metadatacenter.org/instances/edit/{{instance['instance']['value']}}" role="button" class="btn btn-secondary float-right">Edit</a></td>
+            {% else %}
             <td><a href="./edit?uri={{instance['instance']['value']}}" role="button" class="btn btn-secondary float-right">Edit</a></td>
+            {% endif %}
         </tr>
         {%endfor%}
     </tbody>

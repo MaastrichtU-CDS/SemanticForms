@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 <h1>Instance details</h1>
-<button type="button" class="btn btn-danger float-right mb-1" data-toggle="modal"
+{% if not instance_uri.contains("metadatacenter.org") %}
+<!-- <button type="button" class="btn btn-danger float-right mb-1" data-toggle="modal"
   data-target="#deleteModal">Delete</button>
 
 <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModal"
@@ -21,7 +22,8 @@
       </div>
     </div>
   </div>
-</div>
+</div> -->
+{% endif %}
 
 <table class="table table-sm table-striped mt-2">
   <thead>
