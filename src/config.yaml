@@ -1,6 +1,6 @@
 server:
   storageFolder: ./data
-  server_url: "http://localhost:7200"
+  server_url: "http://rdf-store:7200"
   repository_name: "semantic_forms"
   update_endpoint_suffix: "/statements"
 template:
