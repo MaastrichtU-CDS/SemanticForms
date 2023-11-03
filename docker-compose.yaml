@@ -3,11 +3,14 @@ services:
   rdf-store:
     image: ghcr.io/maastrichtu-cds/fair_tools_docker-graphdb/docker-graphdb:latest
     ports: 
-      - "7200:7200"
+      - "127.0.0.1:7200:7200"
     environment:
       - GDB_HEAP_SIZE=2g
       - GDB_MIN_MEM=1g
       - GDB_MAX_MEM=2g
+    volumes:
+      - graphdb_data:/opt/graphdb/home
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:7200/repositories"]
       interval: 5s
@@ -15,11 +18,15 @@ services:
       retries: 5
   semforms:
     image: ghcr.io/maastrichtu-biss/semanticforms
+    restart: unless-stopped
     ports:
-      - "5000:5000"
+      - "127.0.0.1:5000:5000"
     volumes:
-      - ./data:/app/data
+      - semforms_data:/app/data
       - ./src/config.yaml:/app/config.yaml
     depends_on:
       rdf-store:
         condition: service_healthy
+volumes:
+  graphdb_data:
+  semforms_data:
