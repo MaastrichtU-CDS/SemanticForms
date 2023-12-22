@@ -112,9 +112,11 @@ class SPARQLEndpoint:
         """
         sparql = SPARQLWrapper(self.__sparql_url)
         sparql.setQuery("""
-        SELECT ?predicate ?object
+        SELECT ?predicate ?predicate_label ?object ?object_label
         WHERE {
             <%s> ?predicate ?object.
+            OPTIONAL { ?predicate rdfs:label ?predicate_label }.
+            OPTIONAL { ?object rdfs:label ?object_label }.
         }
         """ % instance_uri)
         sparql.setReturnFormat(JSON)

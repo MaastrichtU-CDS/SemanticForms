@@ -35,8 +35,17 @@
   <tbody>
     {%for property in properties %}
     <tr>
-      <td>{{ property["predicate"]["value"] }}</td>
-      <td>{{ property["object"]["value"] }}</td>
+      {% if 'predicate_label' in property %}
+        <td><a href='{{ property["predicate"]["value"] }}' target="_blank">{{ property["predicate_label"]["value"] }}</a></td>
+      {% else %}
+        <td>{{ property["predicate"]["value"] }}</td>
+      {% endif %}
+
+      {% if 'object_label' in property %}
+        <td><a href='{{ property["object"]["value"] }}' target="_blank">{{ property["object_label"]["value"] }}</a></td>
+      {% else %}
+        <td>{{ property["object"]["value"] }}</td>
+      {% endif %}
     </tr>
     {%endfor%}
   </tbody>
