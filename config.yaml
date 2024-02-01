@@ -1,0 +1,11 @@
+server:
+  storageFolder: ./data
+  server_url: "http://rdf-store:7200"
+  repository_name: "semantic_forms"
+  update_endpoint_suffix: "/statements"
+template:
+  source: cedar
+  templateId: 8f15be13-9e24-487a-8844-f5b70bcc7cf0?folderId=https:%2F%2Frepo.metadatacenter.org%2Ffolders%2F6ce6f9ff-a9ff-49a0-987a-88d3c9b639ff
+  storage: cedar
+  instance_base_url: https://describe.fairmodels.org/instance
+  title_predicate: http://purl.org/dc/terms/title
