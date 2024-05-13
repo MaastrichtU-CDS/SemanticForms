@@ -14,4 +14,4 @@ docker run --rm -v $(pwd)/output:/output --workdir /output node:$NODE_VERSION-bu
 
 cp -R $(pwd)/output/node_modules $(pwd)/../src/static/cee
 cp $(pwd)/output/styles.css $(pwd)/../src/static/cee/
-cp $(pwd)/output/MaterialIcons-* $(pwd)/../src/static/cee/
+# cp $(pwd)/output/MaterialIcons-* $(pwd)/../src/static/cee/
