@@ -13,8 +13,8 @@ curl -L -o release-$version.zip https://github.com/metadatacenter/cedar-embeddab
 unzip release-$version.zip
 
 # # Override files needed to work in our situation
-cp app.component.ts cedar-embeddable-editor-release-$version/src/app/app.component.ts
-cp app.module.ts cedar-embeddable-editor-release-$version/src/app/app.module.ts
+# cp app.component.ts cedar-embeddable-editor-release-$version/src/app/app.component.ts
+# cp app.module.ts cedar-embeddable-editor-release-$version/src/app/app.module.ts
 
 # Build project
 cd cedar-embeddable-editor-release-$version
