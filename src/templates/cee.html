@@ -83,19 +83,31 @@
       const meta = cee.currentMetadata;
       const info = cee.templateInfo;
       const xhr = new XMLHttpRequest();
+      xhr.onerror = function(e){
+        alert("An error occured while saving the form. Server response not received.");
+      };
       payload = {
         'metadata': meta,
         'info': info
       }
+
       if (!cee.templateInfo) {
         xhr.open("POST", window.location.origin + "/api/cedar/store");
       } else {
         xhr.open("PUT", window.location.origin + "/api/cedar/store");
       }
+      
       xhr.setRequestHeader("Accept", "application/json");
       xhr.setRequestHeader("Content-Type", "application/json");
+    
+      xhr.onload = () => {
+        if (xhr.status == 200) {
+          window.location.href = window.location.origin
+        } else {
+          window.alert("An error occured while saving the form. Please try again later.")
+        }
+      };
       xhr.send(JSON.stringify(payload, null, 2));
-      console.log("Attempted to store data");
     }
   </script>
 </head>
