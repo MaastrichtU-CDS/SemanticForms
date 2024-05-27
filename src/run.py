@@ -149,45 +149,43 @@ def store():
     Function to store the actual data generated using the cedar embeddable editor.
     """
     template = get_template()
-    session_id = uuid.uuid4()
-    if request.method == "PUT":
-        session_id = request.args.get("id")
-    
-    fileNameJson = os.path.join(config['server']['storageFolder'], f"{session_id}.jsonld")
-    fileNameTurtle = os.path.join(config['server']['storageFolder'], f"{session_id}.ttl")
-
     data_to_store = request.get_json()
-
-    print(json.dumps(data_to_store, indent=4))
+    data_to_store_meta = data_to_store["metadata"]
     
-    # data_to_store_meta = data_to_store["metadata"]
-    # data_to_store_info = data_to_store["info"]
-
-    if "id" in data_to_store:
-        print("existing profile")
-        data_to_store["@id"] = data_to_store["id"]
-        data_to_store["schema:isBasedOn"] = data_to_store["isBasedOn"]
-        data_to_store["pav:createdOn"] = data_to_store["createdOn"]
-        fileNameJson = data_to_store["fileName"]
-        fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
-    else:
+    fileNameJson = None
+    target = data_to_store_meta
+    
+    if request.method == "POST":
+        session_id = uuid.uuid4()
         print("new profile")
-        data_to_store["schema:isBasedOn"] = template['@id']
-        data_to_store["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
-        data_to_store["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
-    # data_to_store["metadata"] = data_to_store
+        print(f"Session id: {session_id}")
+
+        fileNameJson = os.path.join(config['server']['storageFolder'], f"{session_id}.jsonld")
+        target["schema:isBasedOn"] = template['@id']
+        target["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
+        target["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
+    else:
+        data_to_store_info = data_to_store["info"]
+        fileNameJson = data_to_store_info['fileName']
+        print("existing profile")
+        target["@id"] = data_to_store_info["id"]
+        target["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
+        target["pav:createdOn"] = data_to_store_info["createdOn"]
+        target["pav:lastUpdatedOn"] = datetime.datetime.now(local_tz).isoformat()
     
     with open(fileNameJson, "w") as f:
-        json.dump(data_to_store, f, indent=4)
+        # print(json.dumps(target, indent=4))
+        json.dump(target, f, indent=4)
 
+    fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
     g = Graph()
-    g.parse(data=json.dumps(data_to_store), format='json-ld')
+    g.parse(data=json.dumps(target), format='json-ld')
     g.serialize(destination=fileNameTurtle)
     
     turtleData = g.serialize(format='nt')
-    sparqlEndpoint.store_instance(turtleData, data_to_store["@id"])
+    sparqlEndpoint.store_instance(turtleData, target["@id"])
 
-    return {"id": f"{session_id}", "message": "Hi there!"}
+    return {"message": "ok"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
