@@ -51,14 +51,10 @@
       }
 
       const templateObject = JSON.parse('{{ templateObject | safe }}');
-      console.log(templateObject)
 
       {% if formData %}
         const jsonMeta = JSON.parse('{{ formData | safe }}');
-        console.log("============== METADATA ============")
-        console.log(jsonMeta)
         cee.instanceObject = jsonMeta;
-        console.log("============== DONE METADATA ============")
         const templateAndInstance = {templateObject: templateObject, instanceObject: jsonMeta};
         cee.templateAndInstanceObject = templateAndInstance;
       {% else %}
@@ -69,7 +65,6 @@
 
       {% if formInfo %}
         const formInfo = JSON.parse('{{ formInfo | safe }}');
-        console.log(formInfo)
         cee.templateInfo = formInfo;
       {% endif %}
     }
