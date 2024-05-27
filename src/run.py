@@ -61,7 +61,7 @@ def index():
 
 @app.route("/add")
 def cee():
-    return render_template("cee.html")
+    return render_template("cee.html", templateObject=json.dumps(get_template()))
 
 @app.route("/edit")
 def edit_cee():
@@ -85,7 +85,10 @@ def edit_cee():
             del jsonData["@id"]
             del jsonData["pav:createdOn"]
             del jsonData["schema:isBasedOn"]
-        return render_template("cee.html", formData=json.dumps(jsonData), formInfo=json.dumps(infoData))
+        return render_template("cee.html",
+                               templateObject=json.dumps(get_template()),
+                               formData=json.dumps(jsonData),
+                               formInfo=json.dumps(infoData))
     
     return redirect("/", error="Could not load data")  
 
@@ -101,15 +104,6 @@ def showInstance():
     properties = sparqlEndpoint.describe_instance(identifier)
     references = sparqlEndpoint.get_instance_links(identifier)
     return render_template("instance.html", properties=properties, references=references, instance_uri=identifier)
-
-@app.route("/api/cedar/template.json")
-def template():
-    """
-    Retrieve cedar template from the main repository,
-    and pass it to the embeddable editor in the front-end
-    """
-    template = get_template()
-    return Response(json.dumps(template), mimetype='application/json')
 
 def get_template():
     """
@@ -164,34 +158,34 @@ def store():
 
     data_to_store = request.get_json()
 
-    print(data_to_store)
+    print(json.dumps(data_to_store, indent=4))
     
-    data_to_store_meta = data_to_store["metadata"]
-    data_to_store_info = data_to_store["info"]
+    # data_to_store_meta = data_to_store["metadata"]
+    # data_to_store_info = data_to_store["info"]
 
-    if "id" in data_to_store_info:
+    if "id" in data_to_store:
         print("existing profile")
-        data_to_store_meta["@id"] = data_to_store_info["id"]
-        data_to_store_meta["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
-        data_to_store_meta["pav:createdOn"] = data_to_store_info["createdOn"]
-        fileNameJson = data_to_store_info["fileName"]
+        data_to_store["@id"] = data_to_store["id"]
+        data_to_store["schema:isBasedOn"] = data_to_store["isBasedOn"]
+        data_to_store["pav:createdOn"] = data_to_store["createdOn"]
+        fileNameJson = data_to_store["fileName"]
         fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
     else:
         print("new profile")
-        data_to_store_meta["schema:isBasedOn"] = template['@id']
-        data_to_store_meta["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
-        data_to_store_meta["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
-    data_to_store["metadata"] = data_to_store_meta
+        data_to_store["schema:isBasedOn"] = template['@id']
+        data_to_store["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
+        data_to_store["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
+    # data_to_store["metadata"] = data_to_store
     
     with open(fileNameJson, "w") as f:
-        json.dump(data_to_store_meta, f, indent=4)
+        json.dump(data_to_store, f, indent=4)
 
     g = Graph()
-    g.parse(data=json.dumps(data_to_store_meta), format='json-ld')
+    g.parse(data=json.dumps(data_to_store), format='json-ld')
     g.serialize(destination=fileNameTurtle)
     
     turtleData = g.serialize(format='nt')
-    sparqlEndpoint.store_instance(turtleData, data_to_store_meta["@id"])
+    sparqlEndpoint.store_instance(turtleData, data_to_store["@id"])
 
     return {"id": f"{session_id}", "message": "Hi there!"}
 

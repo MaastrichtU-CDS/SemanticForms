@@ -43,60 +43,29 @@
 
   <script type="text/javascript">
 
-    function loadMetadata() {
-      const cee = document.querySelector('cedar-embeddable-editor');
-
-      console.log("loading json metadata")
-      if (cee.currentMetadata.hasOwnProperty("@context")) {
-
-        {% if formData %}
-          const jsonMeta = JSON.parse('{{ formData | safe }}');
-          cee.metadata = jsonMeta;
-        {% endif %}
-
-      } else {
-        setTimeout(loadMetadata, 10)
-      }
-    }
-
     function loadConfig() {
       const cee = document.querySelector('cedar-embeddable-editor');
       cee.config = {
-                    "sampleTemplateLocationPrefix": window.location.origin + "/api",
-                    "loadSampleTemplateName": "cedar",
-                    "expandedSampleTemplateLinks": false,
-                    "showTemplateDescription": false,
+          "showSampleTemplateLinks": false,
+          "terminologyIntegratedSearchUrl": 'https://terminology.metadatacenter.org/bioportal/integrated-search',
+      }
 
-                    "showTemplateRenderingRepresentation": false,
-                    "expandedTemplateRenderingRepresentation": false,
+      const templateObject = JSON.parse('{{ templateObject | safe }}');
+      console.log(templateObject)
 
-                    "showInstanceDataCore": true,
-                    "expandedInstanceDataCore": false,
-
-                    "showMultiInstanceInfo": false,
-                    "expandedMultiInstanceInfo": false,
-
-                    "showInstanceDataFull": true,
-                    "expandedInstanceDataFull": false,
-
-                    "showTemplateSourceData": false,
-                    "expandedTemplateSourceData": false,
-
-                    "showDataQualityReport": false,
-                    "expandedDataQualityReport": false,
-
-                    "showHeader": false,
-                    "showFooter": false,
-
-                    "languageMapPathPrefix": null,
-                    "defaultLanguage": "en",
-                    "fallbackLanguage": "en",
-
-                    "collapseStaticComponents": false,
-                    "showStaticText": true,
-                    
-                    "readOnlyMode": false
-                  }
+      {% if formData %}
+        const jsonMeta = JSON.parse('{{ formData | safe }}');
+        console.log("============== METADATA ============")
+        console.log(jsonMeta)
+        cee.instanceObject = jsonMeta;
+        console.log("============== DONE METADATA ============")
+        const templateAndInstance = {templateObject: templateObject, instanceObject: jsonMeta};
+        cee.templateAndInstanceObject = templateAndInstance;
+      {% else %}
+        cee.templateObject = templateObject
+      {% endif %}
+      
+      
 
       {% if formInfo %}
         const formInfo = JSON.parse('{{ formInfo | safe }}');
@@ -107,12 +76,30 @@
 
     document.addEventListener('WebComponentsReady', function () {
       loadConfig()
-      loadMetadata()
     });
+
+    function saveForm() {
+      const cee = document.querySelector('cedar-embeddable-editor');
+      const meta = cee.currentMetadata;
+      const info = cee.templateInfo;
+      const xhr = new XMLHttpRequest();
+      // payload = {
+      //   'metadata': meta,
+      //   'info': info
+      // }
+      xhr.open("POST", window.location.origin + "/api/cedar/store");
+      xhr.setRequestHeader("Accept", "application/json");
+      xhr.setRequestHeader("Content-Type", "application/json");
+      xhr.send(JSON.stringify(meta, null, 2));
+      console.log("Attempted to store data");
+    }
   </script>
 </head>
 <body>
   <cedar-embeddable-editor></cedar-embeddable-editor>
+  <div>
+    <input type="button" onclick="saveForm()" value="Save"/>
+  </div>
 </body>
 
 </html>

@@ -18,7 +18,7 @@ unzip release-$version.zip
 
 # Build project
 cd cedar-embeddable-editor-release-$version
-sed -i "/this.messageHandlerService.traceObject/ a window.location.href = '\\/';" src/app/modules/shared/components/cedar-data-saver/cedar-data-saver.component.ts
+# sed -i "/this.messageHandlerService.traceObject/ a window.location.href = '\\/';" src/app/modules/shared/components/cedar-data-saver/cedar-data-saver.component.ts
 npm install --no-audit
 # node_modules/@angular/cli/bin/ng build --configuration production --baseHref="./static/cee/"
 export NG_CLI_ANALYTICS=ci
