@@ -12,6 +12,7 @@ import sys
 import datetime
 from tzlocal import get_localzone
 from endpoint_service import SPARQLEndpoint
+from persistance import Persistance, FilePersistance
 
 app = Flask(__name__)
 CORS(app)
@@ -37,22 +38,15 @@ if len(config)==0:
     logging.error("Could not find config.yaml file. System will exit")
     sys.exit(-1)
 
-# Create storage folder
-if not os.path.exists(config['server']['storageFolder']):
-    os.makedirs(config['server']['storageFolder'])
+persistance = FilePersistance(folder_location=config['server']['storageFolder'],
+                              title_uri=config['template']['title_predicate'],
+                              base_url=config['template']['instance_base_url'])
 
-sparqlEndpoint = SPARQLEndpoint(config["server"]["server_url"], config["server"]["repository_name"], update_endpoint_suffix=config["server"]["update_endpoint_suffix"])
+# sparqlEndpoint = SPARQLEndpoint(config["server"]["server_url"], config["server"]["repository_name"], update_endpoint_suffix=config["server"]["update_endpoint_suffix"])
 
 @app.route("/")
 def index():
-    instances = sparqlEndpoint.list_instances(titlePredicate=config["template"]["title_predicate"])
-    for idx, val in enumerate(instances):
-        if "title" not in instances[idx]:
-            instances[idx]["title"] = {
-                "value": instances[idx]["instance"]["value"].replace(config["template"]["instance_base_url"] + "/", ""),
-                "type": "literal"
-            }
-    
+    instances = persistance.list_instances()
     
     if config["template"]["storage"]=="cedar":
         return render_template("index.html", instances=instances, template_id=config["template"]["templateId"])
@@ -98,8 +92,8 @@ def delete_instance():
 @app.route("/instance")
 def showInstance():
     identifier = request.args.get("uri")
-    properties = sparqlEndpoint.describe_instance(identifier)
-    references = sparqlEndpoint.get_instance_links(identifier)
+    # properties = sparqlEndpoint.describe_instance(identifier)
+    # references = sparqlEndpoint.get_instance_links(identifier)
     return render_template("instance.html", properties=properties, references=references, instance_uri=identifier)
 
 @app.route("/api/cedar/template.json")
@@ -175,7 +169,7 @@ def store():
         data_to_store_meta["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
         data_to_store_meta["pav:createdOn"] = data_to_store_info["createdOn"]
         fileNameJson = data_to_store_info["fileName"]
-        fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
+        # fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
     else:
         print("new profile")
         data_to_store_meta["schema:isBasedOn"] = template['@id']
@@ -186,12 +180,12 @@ def store():
     with open(fileNameJson, "w") as f:
         json.dump(data_to_store_meta, f, indent=4)
 
-    g = Graph()
-    g.parse(data=json.dumps(data_to_store_meta), format='json-ld')
-    g.serialize(destination=fileNameTurtle)
+    # g = Graph()
+    # g.parse(data=json.dumps(data_to_store_meta), format='json-ld')
+    # g.serialize(destination=fileNameTurtle)
     
-    turtleData = g.serialize(format='nt')
-    sparqlEndpoint.store_instance(turtleData, data_to_store_meta["@id"])
+    # turtleData = g.serialize(format='nt')
+    # sparqlEndpoint.store_instance(turtleData, data_to_store_meta["@id"])
 
     return {"id": f"{session_id}", "message": "Hi there!"}
 

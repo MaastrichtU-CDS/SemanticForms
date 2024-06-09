@@ -19,14 +19,14 @@
         </tr>
     </thead>
     <tbody>
-        {%for instance in instances %}
+        {%for key in instances %}
         <tr>
-            <td><a href="./instance?uri={{instance['instance']['value']}}">{{instance["title"]["value"]}}</a></td>
-            <td><time datetime="{{instance['time']['value']}}"/></td>
+            <td><a href="./instance?uri={{ key }}">{{instances[key]["title"]}}</a></td>
+            <td><time datetime="{{instances[key]['time']}}"/></td>
             {% if template_id is defined %}
-            <td><a href="https://cedar.metadatacenter.org/instances/edit/{{instance['instance']['value']}}" role="button" class="btn btn-secondary float-right">Edit</a></td>
+            <td><a href="https://cedar.metadatacenter.org/instances/edit/{{ key }}" role="button" class="btn btn-secondary float-right">Edit</a></td>
             {% else %}
-            <td><a href="./edit?uri={{instance['instance']['value']}}" role="button" class="btn btn-secondary float-right">Edit</a></td>
+            <td><a href="./edit?uri={{ key }}" role="button" class="btn btn-secondary float-right">Edit</a></td>
             {% endif %}
         </tr>
         {%endfor%}
