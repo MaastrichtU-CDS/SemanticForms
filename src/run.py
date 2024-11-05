@@ -104,6 +104,18 @@ def showInstance(identifier: str):
         ntriples = g.serialize(format='nt')
         return Response(ntriples, mimetype='application/n-triples')
     
+    if "application/json" in request.accept_mimetypes.best:
+        return Response(json.dumps(jsonData), mimetype='application/json')
+    
+    if "application/ld+json" in request.accept_mimetypes.best:
+        return Response(json.dumps(jsonData), mimetype='application/ld+json')
+    
+    if "application/rdf+xml" in request.accept_mimetypes.best:
+        g = Graph()
+        g.parse(data=json.dumps(jsonData), format='json-ld')
+        rdfxml = g.serialize(format='xml')
+        return Response(rdfxml, mimetype='application/rdf+xml')
+    
     return render_template("instance.html", jsonData=jsonData)
     
 
