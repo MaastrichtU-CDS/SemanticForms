@@ -40,7 +40,7 @@ if len(config)==0:
 
 persistance = FilePersistance(folder_location=config['server']['storageFolder'],
                               title_uri=config['template']['title_predicate'],
-                              base_url=config['template']['instance_base_url'])
+                              base_url=config['template']['instance_base_url'] + "/instance")
 
 # sparqlEndpoint = SPARQLEndpoint(config["server"]["server_url"], config["server"]["repository_name"], update_endpoint_suffix=config["server"]["update_endpoint_suffix"])
 
@@ -57,15 +57,11 @@ def index():
 def cee():
     return render_template("cee.html")
 
-@app.route("/edit")
-def edit_cee():
-    identifier = None
-    if "uri" in request.args:
-        identifier = request.args.get("uri").replace(config['template']['instance_base_url'], ".")
-    jsonData = None
+@app.route("/instance/<identifier>/edit")
+def edit_cee(identifier: str):
     
     if identifier:
-        fileNameJson = os.path.join(config['server']['storageFolder'], f"{identifier}.jsonld")
+        fileNameJson = persistance.get_instance(identifier)['filename']
         with open(fileNameJson, "r") as f:
             jsonData = json.load(f)
 

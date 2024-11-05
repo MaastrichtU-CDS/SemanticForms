@@ -1,11 +1,11 @@
 server:
-  storageFolder: ./data
-  server_url: "http://rdf-store:7200"
-  repository_name: "semantic_forms"
-  update_endpoint_suffix: "/statements"
+  storageFolder: data
+#   server_url: "https://graphdb.fairmodels.org"
+#   repository_name: "semantic_forms"
+#   update_endpoint_suffix: "/statements"
 template:
   source: cedar
   templateId: 102d2c3b-2958-42b1-8baf-8a25ced9aca8
   storage: local
-  instance_base_url: http://localhost/template-instances
+  instance_base_url: http://localhost
   title_predicate: http://purl.org/dc/terms/title

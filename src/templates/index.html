@@ -26,7 +26,7 @@
             {% if template_id is defined %}
             <td><a href="https://cedar.metadatacenter.org/instances/edit/{{ key }}" role="button" class="btn btn-secondary float-right">Edit</a></td>
             {% else %}
-            <td><a href="./edit?uri={{ key }}" role="button" class="btn btn-secondary float-right">Edit</a></td>
+            <td><a href="./instance/{{ key }}/edit" role="button" class="btn btn-secondary float-right">Edit</a></td>
             {% endif %}
         </tr>
         {%endfor%}
