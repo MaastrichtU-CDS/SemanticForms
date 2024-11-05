@@ -1,11 +1,11 @@
-import os, json
+import os, json, uuid
 
 class Persistance:
     def __init__(self):
         print("Initializing persistance")
 
 class FilePersistance(Persistance):
-    def __init__(self, folder_location: str, title_uri: str, base_url='http://localhost/template-instances'):
+    def __init__(self, folder_location: str, title_uri: str, base_url='http://localhost/instance'):
         Persistance.__init__(self)
         self.__folder_location = folder_location
         self.__title_uri = title_uri
@@ -53,5 +53,61 @@ class FilePersistance(Persistance):
                 "time": metadata['pav:createdOn']
             }
     
-    def list_instances(self):
+    def get_instance(self, id: str):
+        """
+        Get an instance from the persistance folder.
+        input:
+            - id: the identifier of the instance to get
+            
+            output:
+                - a dictionary of the instance
+        """
+        if id in self.__cached_items:
+            return self.__cached_items[id]
+        else:
+            raise Exception(f"Could not find instance with id {id}")
+
+    def get_instances(self):
+        """
+        List all instances in the persistance folder.
+
+        output:
+            - a dictionary of instances
+        """
         return self.__cached_items.copy()
+    
+    def delete_instance(self, id: str):
+        """
+        Delete an instance from the persistance folder.
+        input:
+            - id: the identifier of the instance to delete
+            
+            output:
+                - None
+        """
+        if id in self.__cached_items:
+            os.remove(self.__cached_items[id]["filename"])
+            del self.__cached_items[id]
+        else:
+            raise Exception(f"Could not find instance with id {id}")
+    
+    def save_instance(self, data: dict):
+        """
+        Save an instance to the persistance folder.
+        input:
+            - data: the data to save
+            
+            output:
+                - None
+        """
+        if "@id" not in data:
+            session_id = uuid.uuid4()
+            id = f"{self.__base_url}/{session_id}"
+            data["@id"] = id
+        else:
+            session_id = data["@id"].replace(self.__base_url + "/", "")
+
+        filename = os.path.join(self.__folder_location, f"{session_id}.jsonld")
+        with open(filename, 'w') as f:
+            json.dump(data, f, indent=4)
+        self.__parse_jsonld_file(filename)

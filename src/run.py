@@ -46,7 +46,7 @@ persistance = FilePersistance(folder_location=config['server']['storageFolder'],
 
 @app.route("/")
 def index():
-    instances = persistance.list_instances()
+    instances = persistance.get_instances()
     
     if config["template"]["storage"]=="cedar":
         return render_template("index.html", instances=instances, template_id=config["template"]["templateId"])
@@ -86,15 +86,26 @@ def edit_cee():
 @app.route("/delete")
 def delete_instance():
     identifier = request.args.get("uri")
-    sparqlEndpoint.drop_instance(identifier)
+    # sparqlEndpoint.drop_instance(identifier)
+    persistance.delete_instance(identifier)
     return redirect("/")
 
-@app.route("/instance")
-def showInstance():
-    identifier = request.args.get("uri")
-    # properties = sparqlEndpoint.describe_instance(identifier)
-    # references = sparqlEndpoint.get_instance_links(identifier)
-    return render_template("instance.html", properties=properties, references=references, instance_uri=identifier)
+@app.route("/instance/<identifier>")
+def showInstance(identifier: str):
+    filename = persistance.get_instance(identifier)['filename']
+    with open(filename, "r") as f:
+        jsonData = json.load(f)
+    
+    # if accept method is text/plain return n-triples
+    if "application/n-triples" in request.accept_mimetypes.best:
+        # Convert jsonData to n-triples
+        g = Graph()
+        g.parse(data=json.dumps(jsonData), format='json-ld')
+        ntriples = g.serialize(format='nt')
+        return Response(ntriples, mimetype='application/n-triples')
+    
+    return render_template("instance.html", jsonData=jsonData)
+    
 
 @app.route("/api/cedar/template.json")
 def template():
@@ -149,45 +160,26 @@ def store():
     Function to store the actual data generated using the cedar embeddable editor.
     """
     template = get_template()
-    session_id = uuid.uuid4()
-    if request.method == "PUT":
-        session_id = request.args.get("id")
-    
-    fileNameJson = os.path.join(config['server']['storageFolder'], f"{session_id}.jsonld")
-    fileNameTurtle = os.path.join(config['server']['storageFolder'], f"{session_id}.ttl")
 
     data_to_store = request.get_json()
-
-    print(data_to_store)
-    
     data_to_store_meta = data_to_store["metadata"]
     data_to_store_info = data_to_store["info"]
 
     if "id" in data_to_store_info:
-        print("existing profile")
         data_to_store_meta["@id"] = data_to_store_info["id"]
         data_to_store_meta["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
         data_to_store_meta["pav:createdOn"] = data_to_store_info["createdOn"]
-        fileNameJson = data_to_store_info["fileName"]
-        # fileNameTurtle = fileNameJson.replace(".jsonld", ".ttl")
+        data_to_store_meta["pav:lastUpdatedOn"] = datetime.datetime.now(local_tz).isoformat()
+        # fileNameJson = data_to_store_info["fileName"]
     else:
-        print("new profile")
         data_to_store_meta["schema:isBasedOn"] = template['@id']
         data_to_store_meta["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
-        data_to_store_meta["@id"] = f"{config['template']['instance_base_url']}/{session_id}"
+        data_to_store_meta["pav:lastUpdatedOn"] = datetime.datetime.now(local_tz).isoformat()
     data_to_store["metadata"] = data_to_store_meta
     
-    with open(fileNameJson, "w") as f:
-        json.dump(data_to_store_meta, f, indent=4)
+    persistance.save_instance(data_to_store_meta)
 
-    # g = Graph()
-    # g.parse(data=json.dumps(data_to_store_meta), format='json-ld')
-    # g.serialize(destination=fileNameTurtle)
-    
-    # turtleData = g.serialize(format='nt')
-    # sparqlEndpoint.store_instance(turtleData, data_to_store_meta["@id"])
-
-    return {"id": f"{session_id}", "message": "Hi there!"}
+    return {"message": "Hi there!"}
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)

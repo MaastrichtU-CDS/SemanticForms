@@ -33,21 +33,62 @@
     </tr>
   </thead>
   <tbody>
-    {%for property in properties %}
-    <tr>
-      {% if 'predicate_label' in property %}
-        <td><a href='{{ property["predicate"]["value"] }}' target="_blank">{{ property["predicate_label"]["value"] }}</a></td>
-      {% else %}
-        <td>{{ property["predicate"]["value"] }}</td>
-      {% endif %}
-
-      {% if 'object_label' in property %}
-        <td><a href='{{ property["object"]["value"] }}' target="_blank">{{ property["object_label"]["value"] }}</a></td>
-      {% else %}
-        <td>{{ property["object"]["value"] }}</td>
-      {% endif %}
-    </tr>
-    {%endfor%}
   </tbody>
 </table>
+
+<script>
+  var instance = {{ jsonData | tojson }};
+  var table = document.querySelector('.datatable tbody');
+  for (var key in instance) {
+    // if key is an empty list or dictionary, ignore
+    if (instance[key].length == 0 || Object.keys(instance[key]).length == 0) {
+      continue;
+    }
+
+    //if value is a dictionary which contains '@value', but the value is undefined, ignore
+    if (typeof instance[key] == 'object') {
+      if ("@value" in instance[key]) {
+        if (instance[key]['@value'] == undefined) {
+          continue;
+        }
+      }
+    }
+
+    //ignore @context and @id
+    if (key == '@context' || key == '@id') {
+      continue;
+    }
+
+    var tr = document.createElement('tr');
+    var td1 = document.createElement('td');
+    var td2 = document.createElement('td');
+    td1.textContent = key;
+
+    //if key is a list, loop over items
+    if (Array.isArray(instance[key])) {
+      // inspect whether the @value objects in the list have an actual value, otherwise ignore
+      if (instance[key].length > 0 && instance[key][0]["@value"] == undefined) {
+        continue;
+      }
+
+      var ul = document.createElement('ul');
+      for (var i = 0; i < instance[key].length; i++) {
+        var li = document.createElement('li');
+        li.textContent = instance[key][i]["@value"];
+        ul.appendChild(li);
+      }
+      td2.appendChild(ul);
+    } else {
+      //determine whether the key contains a dict or a value
+      if (typeof instance[key] == 'object') {
+        td2.textContent = instance[key]["@value"];
+      } else {
+        td2.textContent = instance[key];
+      }
+    }
+    tr.appendChild(td1);
+    tr.appendChild(td2);
+    table.appendChild(tr);
+  }
+</script>
 {% endblock %}

@@ -21,7 +21,7 @@
     <tbody>
         {%for key in instances %}
         <tr>
-            <td><a href="./instance?uri={{ key }}">{{instances[key]["title"]}}</a></td>
+            <td><a href="./instance/{{ key }}">{{instances[key]["title"]}}</a></td>
             <td><time datetime="{{instances[key]['time']}}"/></td>
             {% if template_id is defined %}
             <td><a href="https://cedar.metadatacenter.org/instances/edit/{{ key }}" role="button" class="btn btn-secondary float-right">Edit</a></td>
