@@ -11,8 +11,7 @@ import logging
 import sys
 import datetime
 from tzlocal import get_localzone
-from endpoint_service import SPARQLEndpoint
-from persistance import Persistance, FilePersistance
+from persistance import FilePersistance
 
 app = Flask(__name__)
 CORS(app)
@@ -41,8 +40,6 @@ if len(config)==0:
 persistance = FilePersistance(folder_location=config['server']['storageFolder'],
                               title_uri=config['template']['title_predicate'],
                               base_url=config['template']['instance_base_url'] + "/instance")
-
-# sparqlEndpoint = SPARQLEndpoint(config["server"]["server_url"], config["server"]["repository_name"], update_endpoint_suffix=config["server"]["update_endpoint_suffix"])
 
 @app.route("/")
 def index():
@@ -82,7 +79,6 @@ def edit_cee(identifier: str):
 @app.route("/delete")
 def delete_instance():
     identifier = request.args.get("uri")
-    # sparqlEndpoint.drop_instance(identifier)
     persistance.delete_instance(identifier)
     return redirect("/")
 
@@ -178,7 +174,6 @@ def store():
         data_to_store_meta["schema:isBasedOn"] = data_to_store_info["isBasedOn"]
         data_to_store_meta["pav:createdOn"] = data_to_store_info["createdOn"]
         data_to_store_meta["pav:lastUpdatedOn"] = datetime.datetime.now(local_tz).isoformat()
-        # fileNameJson = data_to_store_info["fileName"]
     else:
         data_to_store_meta["schema:isBasedOn"] = template['@id']
         data_to_store_meta["pav:createdOn"] = datetime.datetime.now(local_tz).isoformat()
