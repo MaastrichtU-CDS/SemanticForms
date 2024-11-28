@@ -83,6 +83,7 @@
             var td1 = document.createElement('td');
             var td2 = document.createElement('td');
             td1.textContent = element + ":";
+            td1.style.fontWeight = 'bold';
             td1.style.paddingLeft = ((indent*5) + 5) + 'px';
             tr.appendChild(td1);
             tr.appendChild(td2);
@@ -108,7 +109,8 @@
           var tr = document.createElement('tr');
           var td1 = document.createElement('td');
           var td2 = document.createElement('td');
-          td1.textContent = key;
+          td1.textContent = key + ":";
+          td1.style.fontWeight = 'bold';
           tr.appendChild(td1);
           tr.appendChild(td2);
           table.appendChild(tr);
